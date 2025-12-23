@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>五十音タッチ（あ→ん） 4×12版</title>
+  <style>
+    :root{
+      --gap: .5rem;
+      --btn-size: 64px; /* min height */
+      --ok: #0ea5e9;    /* sky-500 */
+      --ng: #ef4444;    /* red-500 */
+      --accent: #10b981;/* emerald-500 */
+      --bg: #f8fafc;    /* slate-50 */
+      --fg: #0f172a;    /* slate-900 */
+      --muted: #475569; /* slate-600 */
+      --card: #ffffff;
+      --border: #e2e8f0;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      color:var(--fg); background:var(--bg);
+      display:flex; flex-direction:column; align-items:center; padding:1rem;
+    }
+    h1{font-size:clamp(1.1rem, 2.2vw + .8rem, 1.6rem); margin:.2rem 0 .8rem;}
+    .toolbar{display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 .75rem;}
+    button, .toggle{
+      border:1px solid var(--border); background:#fff; color:var(--fg);
+      padding:.5rem .8rem; border-radius:.6rem; font-size:1rem; cursor:pointer;
+      box-shadow:0 1px 1px rgba(0,0,0,.04);
+    }
+    button.primary{background:var(--accent); color:white; border-color:transparent;}
+    button:disabled{opacity:.6; cursor:not-allowed;}
+    .grid{
+      width: min(1100px, 100%);
+      display:grid;
+      grid-template-columns: repeat(12, 1fr); /* 横12 */
+      gap:var(--gap);
+      align-content:start;
+    }
+    .cell{
+      aspect-ratio: 1 / 1; /* 正方形に近づける */
+      min-height: var(--btn-size);
+      display:flex; align-items:center; justify-content:center;
+      border:1px solid var(--border); border-radius:.8rem;
+      background:var(--card); font-size:clamp(1.4rem, 4.5vw, 2rem);
+      user-select:none; -webkit-tap-highlight-color: transparent;
+      transition: transform .04s ease-out, background-color .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .cell:active{ transform:scale(0.98); }
+    .cell.ok{ background:var(--ok); color:#fff; border-color:transparent; }
+    .cell.ng{ background:var(--ng); color:#fff; border-color:transparent; }
+    .hud{display:flex; gap:1rem; flex-wrap:wrap; align-items:center; color:var(--muted); margin:.4rem 0 .8rem;}
+    .hud b{color:var(--fg);}
+    .toggles{display:flex; gap:.5rem; align-items:center;}
+    .toggle{display:inline-flex; align-items:center; gap:.4rem;}
+    .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;}
+    .footer{margin-top:1rem; color:var(--muted); font-size:.9rem;}
+    details summary{cursor:pointer;}
+  </style>
+</head>
+<body>
+  <h1>五十音タッチ（あ→ん） <small style="font-weight:normal;color:#64748b;">4×12 レイアウト</small></h1>
+
+  <div class="toolbar">
+    <button id="startBtn" class="primary">スタート</button>
+    <button id="shuffleBtn">並び替え</button>
+    <button id="resetBtn">リセット</button>
+    <button id="fsBtn">全画面</button>
+    <div class="toggles">
+      <label class="toggle"><input type="checkbox" id="voiceChk" /> 音声</label>
+      <label class="toggle"><input type="checkbox" id="vibeChk" checked /> バイブ</label>
+      <button id="modelBtn">お手本をきく</button>
+    </div>
+  </div>
+
+  <div class="hud">
+    <div>つぎ：<b id="nextLabel">—</b></div>
+    <div>時間：<b id="timeLabel">0.0</b> 秒</div>
+    <div>ベスト：<b id="bestLabel">—</b></div>
+  </div>
+
+  <div id="grid" class="grid" aria-label="五十音ボタンのグリッド 4×12"></div>
+
+  <div class="footer">
+    <div>© クラス用オフライン版 / ボタンは毎回ランダム配置</div>
+    <details style="margin-top:.4rem"><summary>使い方</summary>
+      <ul>
+        <li>「スタート」で計測開始。「あ → い → う → … → ん」の順にタップ。</li>
+        <li>「並び替え」で配置だけシャッフル。進行中ならリセットされます。</li>
+        <li>「リセット」で現在の配置のまま最初からやり直し。</li>
+        <li>「お手本をきく」で、つぎに押す文字を読み上げます（音声ON時）。</li>
+        <li>ベストタイムはブラウザーに保存されます。</li>
+      </ul>
+    </details>
+  </div>
+
+  <script>
+    (()=>{
+      const grid = document.getElementById('grid');
+      const nextLabel = document.getElementById('nextLabel');
+      const timeLabel = document.getElementById('timeLabel');
+      const bestLabel = document.getElementById('bestLabel');
+      const startBtn = document.getElementById('startBtn');
+      const shuffleBtn = document.getElementById('shuffleBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const fsBtn = document.getElementById('fsBtn');
+      const voiceChk = document.getElementById('voiceChk');
+      const vibeChk = document.getElementById('vibeChk');
+      const modelBtn = document.getElementById('modelBtn');
+
+      const KANA_ORDER = [
+        'あ','い','う','え','お',
+        'か','き','く','け','こ',
+        'さ','し','す','せ','そ',
+        'た','ち','つ','て','と',
+        'な','に','ぬ','ね','の',
+        'は','ひ','ふ','へ','ほ',
+        'ま','み','む','め','も',
+        'や','ゆ','よ',
+        'ら','り','る','れ','ろ',
+        'わ','を','ん'
+      ]; // 46 文字
+
+      const BEST_KEY = 'gojuon_best_4x12_v1';
+
+      let nextIndex = -1; // -1 は未開始
+      let startTime = 0;
+      let timerId = null;
+
+      function speak(text){
+        if(!voiceChk.checked) return;
+        try{
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'ja-JP'; u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(u);
+        }catch(e){/* ignore */}
+      }
+      function vibe(ms=40){ if(!vibeChk.checked) return; if(navigator.vibrate) navigator.vibrate(ms); }
+
+      function fmt(sec){ return sec.toFixed(1); }
+      function now(){ return performance.now(); }
+
+      function loadBest(){
+        const v = localStorage.getItem(BEST_KEY);
+        return v ? parseFloat(v) : null;
+      }
+      function saveBest(sec){ localStorage.setItem(BEST_KEY, String(sec)); }
+
+      function updateBestLabel(){
+        const b = loadBest();
+        bestLabel.textContent = (b==null? '—' : fmt(b));
+      }
+
+      function shuffle(array){
+        for(let i=array.length-1;i>0;i--){
+          const j = Math.floor(Math.random()*(i+1));
+          [array[i],array[j]]=[array[j],array[i]];
+        }
+      }
+
+      function buildGrid(shuffled){
+        grid.innerHTML = '';
+        shuffled.forEach(ch =>{
+          const btn = document.createElement('button');
+          btn.className = 'cell';
+          btn.type='button';
+          btn.textContent = ch;
+          btn.setAttribute('aria-label', ch + ' のボタン');
+          btn.addEventListener('click', ()=>onTap(btn, ch));
+          grid.appendChild(btn);
+        });
+      }
+
+      function setNextLabel(){
+        nextLabel.textContent = (nextIndex>=0 && nextIndex < KANA_ORDER.length) ? KANA_ORDER[nextIndex] : '—';
+      }
+
+      function startTimer(){
+        startTime = now();
+        clearInterval(timerId);
+        timerId = setInterval(()=>{
+          const sec = (now()-startTime)/1000;
+          timeLabel.textContent = fmt(sec);
+        }, 50);
+      }
+      function stopTimer(){ clearInterval(timerId); timerId=null; }
+
+      function resetProgress(){
+        nextIndex = 0;
+        setNextLabel();
+        timeLabel.textContent = '0.0';
+        [...grid.children].forEach(el=>{ el.disabled=false; el.classList.remove('ok','ng'); });
+      }
+
+      function onTap(btn, ch){
+        if(nextIndex < 0){ // 未開始
+          vibe(60); flash(btn,'ng'); return;
+        }
+        const expected = KANA_ORDER[nextIndex];
+        if(ch===expected){
+          btn.classList.remove('ng');
+          btn.classList.add('ok');
+          btn.disabled = true;
+          vibe(20); speak(ch);
+          nextIndex++;
+          if(nextIndex >= KANA_ORDER.length){
+            // goal
+            stopTimer();
+            const sec = parseFloat(timeLabel.textContent);
+            const best = loadBest();
+            if(best==null || sec < best){ saveBest(sec); }
+            updateBestLabel();
+            nextIndex = -1; // 完了
+            setNextLabel();
+          }else{
+            setNextLabel();
+          }
+        }else{
+          // wrong
+          vibe(100); flash(btn,'ng');
+        }
+      }
+
+      function flash(el, cls){
+        el.classList.add(cls);
+        setTimeout(()=> el.classList.remove(cls), 220);
+      }
+
+      function doStart(){
+        const shuffled = [...KANA_ORDER];
+        shuffle(shuffled);
+        buildGrid(shuffled);
+        resetProgress();
+        startTimer();
+      }
+
+      function doShuffle(){
+        stopTimer();
+        const shuffled = [...KANA_ORDER];
+        shuffle(shuffled);
+        buildGrid(shuffled);
+        nextIndex = -1; setNextLabel();
+        timeLabel.textContent = '0.0';
+      }
+
+      function doReset(){
+        stopTimer();
+        resetProgress();
+      }
+
+      function toggleFullscreen(){
+        const doc = document; const de = doc.documentElement;
+        if(!doc.fullscreenElement){ de.requestFullscreen?.(); }
+        else{ doc.exitFullscreen?.(); }
+      }
+
+      function speakModel(){
+        if(nextIndex<0){ speak('スタートを押してください'); return; }
+        const ch = KANA_ORDER[nextIndex];
+        speak(ch);
+      }
+
+      // wire up
+      startBtn.addEventListener('click', doStart);
+      shuffleBtn.addEventListener('click', doShuffle);
+      resetBtn.addEventListener('click', doReset);
+      fsBtn.addEventListener('click', toggleFullscreen);
+      modelBtn.addEventListener('click', speakModel);
+
+      // 初期表示：シャッフル済みグリッドのみ（未開始）
+      (function init(){
+        const arr = [...KANA_ORDER];
+        shuffle(arr); buildGrid(arr);
+        nextIndex = -1; setNextLabel();
+        updateBestLabel();
+      })();
+
+      // iOS の音声初回許可対策：ユーザー操作で解放
+      document.addEventListener('touchstart', ()=>{}, {passive:true, once:true});
+    })();
+  </script>
+</body>
+</html>

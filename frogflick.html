@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="小学校向け：かなフリック入力の練習教材です。個人情報の収集は行いません。オフラインでも動作します。" />
+  <meta name="robots" content="index,follow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="カエルとフリックれんしゅう（タイムのみ）" />
+  <meta property="og:description" content="小学校向け：かなフリック入力の練習教材。個人情報は収集しません。" />
+  <title>カエルとフリックれんしゅう（タイムのみ）</title>
+
+  <!-- 検索/分類向け：教育用途を明示（JSに依存しないテキストも本文に入れます） -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "カエルとフリックれんしゅう（タイムのみ）",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "description": "小学校向け：かなフリック入力の練習教材。個人情報の収集は行いません。"
+  }
+  </script>
+
+  <style>
+    :root{
+      --bg1:#f7fbff;
+      --bg2:#e9f7f2;
+      --text:#1f2a37;
+      --muted:#5b6b7e;
+      --accent:#22c55e;
+      --accent2:#06b6d4;
+      --good:#16a34a;
+      --bad:#ef4444;
+      --shadow: 0 10px 22px rgba(31,42,55,.10);
+      --radius: 18px;
+      --gap: 12px;
+      --border: rgba(31,42,55,.10);
+      --keybg: rgba(34,197,94,.10);
+      --keybg2: rgba(6,182,212,.10);
+    }
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:"Yu Gothic UI","Yu Gothic","Meiryo",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background: radial-gradient(900px 600px at 25% 10%, var(--bg2) 0%, var(--bg1) 55%) fixed;
+      overflow:hidden;
+    }
+
+    /* 画面外に配置するが、HTML上は明確な説明文を保持（分類・アクセシビリティ用） */
+    .sr-only{
+      position:absolute!important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+
+    .wrap{height:100svh; display:flex; justify-content:center; padding:14px 14px calc(14px + env(safe-area-inset-bottom));}
+    .app{width:min(980px, 100%); height:100%; display:flex; flex-direction:column; gap:var(--gap);}    
+
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,251,255,.95));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:10px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .brand{display:flex; align-items:center; gap:10px;}
+    .brand .name{font-weight:900; letter-spacing:.02em;}
+
+    .badge{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px;
+      background: rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.22); font-weight:900; font-size:14px; white-space:nowrap;}
+    .badge small{color:var(--muted); font-weight:800;}
+
+    .stats{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
+    .chip{background: rgba(255,255,255,.85); border:1px solid var(--border); border-radius:999px; padding:8px 10px; font-weight:900; font-size:14px; white-space:nowrap;}
+    .chip span{color:var(--accent2)}
+
+    .main{flex:1; display:grid; grid-template-columns: 1.15fr 0.85fr; gap:var(--gap); min-height:0;}
+    @media (max-width: 860px){ .main{grid-template-columns:1fr;} }
+
+    .panel{background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,251,255,.98)); border:1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding:12px; min-height:0;}
+
+    .prompt{display:flex; flex-direction:column; gap:10px; height:100%;}
+    .prompt h1{margin:0; font-size:20px; letter-spacing:.02em;}
+    .help{color:var(--muted); font-size:13px; line-height:1.3;}
+
+    .frogCard{display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background: linear-gradient(180deg, rgba(34,197,94,.10), rgba(6,182,212,.08));
+      border:1px solid rgba(34,197,94,.18);
+      border-radius: 16px;
+      padding: 10px 12px;}
+    .frogSay{font-weight:900;}
+    .frogSay small{display:block; color:var(--muted); font-weight:800; margin-top:2px;}
+
+    .wordBox{background: rgba(255,255,255,.90); border: 1px dashed rgba(31,42,55,.18); border-radius: 16px;
+      padding: 12px; display:flex; flex-direction:column; gap:10px;}
+    .word{font-size: 34px; font-weight: 950; text-align:center; line-height:1.1;}
+    ruby rt{font-size:14px; color:var(--muted); font-weight:900;}
+
+    .reading{display:flex; flex-wrap:wrap; gap:4px; justify-content:center;}
+    .char{display:inline-flex; align-items:center; justify-content:center; min-width:18px; padding:4px 6px; border-radius:10px;
+      background: rgba(31,42,55,.04); border: 1px solid rgba(31,42,55,.08); font-weight:950; font-size:20px;}
+    .char.done{background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.26);}
+    .char.next{outline:3px solid rgba(6,182,212,.35); background: rgba(6,182,212,.10);}
+
+    .inputRow{display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:stretch;}
+    .typed{border-radius:16px; background: rgba(255,255,255,.92); border:1px solid var(--border); padding: 10px 12px;
+      font-size: 24px; font-weight: 950; min-height:54px; display:flex; align-items:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+
+    .actions{display:flex; flex-direction:column; gap:8px; min-width: 116px;}
+    .abtn{border-radius:16px; background: rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.18); padding: 10px 10px;
+      font-weight: 950; cursor:pointer; user-select:none; text-align:center;}
+
+    .feedback{height: 30px; display:flex; align-items:center; justify-content:center; font-weight: 950; letter-spacing:.05em;
+      color: var(--accent2); text-shadow: 0 6px 18px rgba(6,182,212,.18); user-select:none;}
+    .feedback.good{color:var(--good); text-shadow:0 6px 18px rgba(34,197,94,.22)}
+    .feedback.bad{color:var(--bad); text-shadow:0 6px 18px rgba(239,68,68,.18)}
+
+    .kbd{height:100%; display:flex; flex-direction:column; gap:10px;}
+    .kbdHeader{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+    .kbdHeader .hint{color:var(--muted); font-size:13px;}
+
+    .kbdWrap{flex:1; min-height:0; display:grid; grid-template-columns: 3fr 1.05fr; gap:10px;}
+    .kbdGrid{min-height:0; display:grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap:10px;}
+    .sideCol{min-height:0; display:grid; grid-template-rows: repeat(4, 1fr); gap:10px;}
+
+    .key{position:relative; border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,251,255,.95));
+      border:1px solid var(--border);
+      box-shadow: 0 10px 18px rgba(31,42,55,.10);
+      color: var(--text);
+      font-weight: 950;
+      font-size: 26px;
+      display:flex; align-items:center; justify-content:center;
+      user-select:none; touch-action:none;
+      cursor:pointer;
+      transition: transform .05s ease, box-shadow .05s ease;
+      text-align:center; line-height:1.1; padding: 6px;}
+    .key:active{transform:scale(.98); box-shadow: 0 8px 12px rgba(31,42,55,.10)}
+    .key small{position:absolute; bottom:8px; right:10px; font-weight:950; font-size:12px; color: rgba(31,42,55,.55); letter-spacing:.02em;}
+    .key.special{background: linear-gradient(180deg, var(--keybg), rgba(255,255,255,.95)); border-color: rgba(34,197,94,.22); font-size: 18px;}
+    .key.symbol{background: linear-gradient(180deg, var(--keybg2), rgba(255,255,255,.95)); border-color: rgba(6,182,212,.22); font-size: 20px;}
+
+    .key.side{background: linear-gradient(180deg, rgba(31,42,55,.06), rgba(255,255,255,.95)); border-color: rgba(31,42,55,.14); font-size: 18px;}
+    .key.side.danger{background: linear-gradient(180deg, rgba(239,68,68,.12), rgba(255,255,255,.95)); border-color: rgba(239,68,68,.22);}
+    .key.side.big{grid-row: span 2; font-size: 18px;}
+    .key.disabled{opacity:.45; cursor:not-allowed; filter: grayscale(15%);}
+    .key.disabled:active{transform:none; box-shadow: 0 10px 18px rgba(31,42,55,.10)}
+
+    .overlay{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,.0); z-index:999; pointer-events:none;}
+    .wheel{width: 240px; height: 240px; border-radius: 999px; background: rgba(255,255,255,.94);
+      border: 1px solid rgba(31,42,55,.16);
+      box-shadow: 0 20px 50px rgba(31,42,55,.22);
+      position:relative; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(8px);}
+    .opt{position:absolute; width: 86px; height: 56px; border-radius: 14px;
+      background: rgba(31,42,55,.05);
+      border:1px solid rgba(31,42,55,.10);
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 950; font-size: 26px; color: var(--text);}
+    .opt.sel{outline:4px solid rgba(6,182,212,.35); background: rgba(6,182,212,.10); border-color: rgba(6,182,212,.25);}
+    .opt.center{ width: 110px; height: 70px; font-size: 30px; }
+    .opt.up{ top: 14px; left: 50%; transform: translateX(-50%); }
+    .opt.right{ right: 10px; top: 50%; transform: translateY(-50%); }
+    .opt.down{ bottom: 14px; left: 50%; transform: translateX(-50%); }
+    .opt.left{ left: 10px; top: 50%; transform: translateY(-50%); }
+
+    .results{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(31,42,55,.35); z-index:1000; padding:16px;}
+    .card{width: min(600px, 100%); background: rgba(255,255,255,.98); border:1px solid rgba(31,42,55,.14); border-radius: 22px;
+      box-shadow: 0 30px 80px rgba(31,42,55,.25); padding: 16px;}
+
+    .resultTop{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+    .resultTitle{display:flex; flex-direction:column; gap:2px;}
+    .resultTitle h2{margin:0; font-size:22px;}
+
+    .bigTime{margin-top: 12px; background: linear-gradient(180deg, rgba(34,197,94,.12), rgba(6,182,212,.08));
+      border:1px solid rgba(6,182,212,.18); border-radius: 18px; padding: 14px 14px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;}
+    .bigTime .label{font-weight:950; color: rgba(31,42,55,.70);}    
+    .bigTime .time{font-size: 56px; font-weight: 980; letter-spacing: .01em; line-height: 1; color: #0f766e;
+      text-shadow: 0 10px 18px rgba(6,182,212,.12);}    
+    .bigTime .sec{font-size: 18px; font-weight:950; color: rgba(31,42,55,.70); margin-left:6px;}
+
+    .frogResult{margin-top: 10px; border-radius: 18px; border: 1px solid rgba(34,197,94,.18);
+      background: rgba(34,197,94,.08); padding: 10px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+    .frogResult .msg{font-weight:950;}
+    .frogResult .msg small{display:block; margin-top:2px; color:var(--muted); font-weight:850;}
+    .frogFace{font-size:28px;}
+
+    .btns{display:flex; gap:10px; margin-top:12px;}
+    button{appearance:none; border:none; border-radius:16px; padding:12px 14px; font-weight:950; font-size:16px; cursor:pointer;}
+    .primary{background: rgba(34,197,94,.90); color:#083016;}
+    .ghost{background: rgba(31,42,55,.06); color:var(--text); border:1px solid rgba(31,42,55,.12);}
+
+    .frogSvg{width:62px; height:62px; flex:0 0 auto;}
+  </style>
+</head>
+<body>
+  <!-- i-FILTER等の分類向け：教育用途・個人情報非収集を明示（表示には影響しません） -->
+  <h1 class="sr-only">小学校向け かなフリック入力 練習教材（個人情報は収集しません）</h1>
+  <p class="sr-only">このページは授業で使用する学習用教材です。広告、SNS連携、外部トラッキング、個人情報の収集は行いません。ページ内の処理はブラウザ内で完結します。</p>
+
+  <noscript>
+    <div style="padding:12px; margin:12px; border:1px solid rgba(31,42,55,.2); border-radius:12px; background:#fff;">
+      <strong>JavaScriptが無効です。</strong> この教材はブラウザ内で動くため、JavaScriptを有効にしてください。
+    </div>
+  </noscript>
+
+  <div class="wrap">
+    <div class="app">
+      <div class="top">
+        <div class="brand">
+          <svg class="frogSvg" viewBox="0 0 120 120" aria-label="カエル">
+            <defs>
+              <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#86efac"/>
+                <stop offset="1" stop-color="#22c55e"/>
+              </linearGradient>
+            </defs>
+            <circle cx="60" cy="62" r="44" fill="url(#g)"/>
+            <circle cx="36" cy="38" r="18" fill="#a7f3d0"/>
+            <circle cx="84" cy="38" r="18" fill="#a7f3d0"/>
+            <circle cx="36" cy="38" r="9" fill="#fff"/>
+            <circle cx="84" cy="38" r="9" fill="#fff"/>
+            <circle cx="38" cy="40" r="4" fill="#111827"/>
+            <circle cx="86" cy="40" r="4" fill="#111827"/>
+            <path d="M35 76 C45 88, 75 88, 85 76" fill="none" stroke="#0f172a" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="46" cy="64" r="6" fill="#86efac" opacity=".7"/>
+            <circle cx="74" cy="64" r="6" fill="#86efac" opacity=".7"/>
+          </svg>
+          <div>
+            <div class="name">カエルとフリックれんしゅう</div>
+            <div class="help">タイムだけで たのしくれんしゅう！</div>
+          </div>
+        </div>
+
+        <div class="badge">第 <span id="qNow">1</span> 問 <small>/ 5</small></div>
+
+        <div class="stats">
+          <div class="chip">⏱ じかん <span id="time">0.0</span> 秒</div>
+        </div>
+      </div>
+
+      <div class="main">
+        <section class="panel prompt">
+          <div>
+            <h1>おだい</h1>
+            <div class="help">※ ミスやスコアは数えません。「と→ど」のように、あとから「゛゜っゃゅょ」で直してOK！</div>
+            <div class="help">（この教材は学習用です。外部送信や個人情報の収集は行いません。）</div>
+          </div>
+
+          <div class="frogCard" aria-label="カエルメッセージ">
+            <div class="frogSay" id="frogSay">いっしょに がんばろう！<small>キーを おして フリックしてね</small></div>
+            <div style="font-weight:950; color: rgba(31,42,55,.55);">🐸</div>
+          </div>
+
+          <div class="wordBox">
+            <div class="word" id="word"></div>
+            <div class="reading" id="reading"></div>
+          </div>
+
+          <div class="inputRow">
+            <div class="typed" id="typed">（ここに入力されます）</div>
+            <div class="actions">
+              <div class="abtn" id="clear">クリア</div>
+            </div>
+          </div>
+
+          <div class="feedback" id="feedback">スタート！</div>
+          <div class="help">正しくなったら自動で次へ。まちがえたら「戻る」か「゛゜っゃゅょ」でなおそう。</div>
+        </section>
+
+        <section class="panel kbd">
+          <div class="kbdHeader">
+            <div style="font-weight:950">フリック入力</div>
+            <div class="hint">押してフリック（左/上/右/下）</div>
+          </div>
+          <div class="kbdWrap">
+            <div class="kbdGrid" id="kbd"></div>
+            <div class="sideCol" id="side"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="wheel" id="wheel">
+      <div class="opt up" data-dir="up"></div>
+      <div class="opt right" data-dir="right"></div>
+      <div class="opt down" data-dir="down"></div>
+      <div class="opt left" data-dir="left"></div>
+      <div class="opt center sel" data-dir="center"></div>
+    </div>
+  </div>
+
+  <div class="results" id="results" role="dialog" aria-modal="true">
+    <div class="card">
+      <div class="resultTop">
+        <div class="resultTitle">
+          <h2>けっか</h2>
+          <div class="help">スコアタイムを見て、つぎの もくひょうを きめよう！</div>
+        </div>
+        <div class="badge" style="background:rgba(34,197,94,.12); border-color:rgba(34,197,94,.22)">🐸 5問クリア</div>
+      </div>
+
+      <div class="bigTime" aria-label="スコアタイム">
+        <div>
+          <div class="label">スコアタイム</div>
+          <div class="help">5問を正しく入力できた時間</div>
+        </div>
+        <div style="display:flex; align-items:flex-end; gap:6px;">
+          <div class="time" id="rTimeBig">-</div>
+          <div class="sec">秒</div>
+        </div>
+      </div>
+
+      <div class="frogResult" id="frogResult">
+        <div class="msg" id="frogResultMsg">🐸 おつかれさま！<small>また ちょうせん してね</small></div>
+        <div class="frogFace" id="frogFace">🐸</div>
+      </div>
+
+      <div class="btns">
+        <button class="primary" id="retry">もういちど</button>
+        <button class="ghost" id="close">とじる</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const problems = [
+    { display: '<ruby>恐竜<rt>きょうりゅう</rt></ruby>', reading: 'きょうりゅう', comment: 'どーん！きょうりゅう！' },
+    { display: '<ruby>宝箱<rt>たからばこ</rt></ruby>', reading: 'たからばこ', comment: 'きらきら！たからばこ！' },
+    { display: '<ruby>花火<rt>はなび</rt></ruby>', reading: 'はなび', comment: 'ぱん！きれい！' },
+    { display: '<ruby>飛行機<rt>ひこうき</rt></ruby>', reading: 'ひこうき', comment: 'ぶーん！とんだ！' },
+    { display: '<ruby>動物園<rt>どうぶつえん</rt></ruby>', reading: 'どうぶつえん', comment: 'いろんな どうぶつ！' },
+  ];
+
+  const K = (label, c, l, u, r, d, type='normal') => ({label, map:{center:c, left:l, up:u, right:r, down:d}, type});
+  const keys = [
+    K('あ', 'あ','い','う','え','お'),
+    K('か', 'か','き','く','け','こ'),
+    K('さ', 'さ','し','す','せ','そ'),
+    K('た', 'た','ち','つ','て','と'),
+    K('な', 'な','に','ぬ','ね','の'),
+    K('は', 'は','ひ','ふ','へ','ほ'),
+    K('ま', 'ま','み','む','め','も'),
+    K('や', 'や','', 'ゆ', '', 'よ'),
+    K('ら', 'ら','り','る','れ','ろ'),
+    K('゛゜っゃゅょ', 'TOGGLE','','','','', 'special'),
+    K('わ', 'わ','を','ん','ー',''),
+    K('記号', '、','。','？','！','・', 'symbol'),
+  ];
+
+  const sideButtons = [
+    { label:'戻る', value:'BACK', cls:'side danger', hint:'1文字', enabled:true },
+    { label:'空白', value:'SPACE', cls:'side', hint:'（無効）', enabled:false },
+    { label:'改行', value:'ENTER', cls:'side big', hint:'（無効）', enabled:false },
+  ];
+
+  const dakuten = new Map([
+    ['か','が'],['き','ぎ'],['く','ぐ'],['け','げ'],['こ','ご'],
+    ['さ','ざ'],['し','じ'],['す','ず'],['せ','ぜ'],['そ','ぞ'],
+    ['た','だ'],['ち','ぢ'],['つ','づ'],['て','で'],['と','ど'],
+    ['は','ば'],['ひ','び'],['ふ','ぶ'],['へ','べ'],['ほ','ぼ'],
+  ]);
+  const handakuten = new Map([
+    ['は','ぱ'],['ひ','ぴ'],['ふ','ぷ'],['へ','ぺ'],['ほ','ぽ'],
+  ]);
+  const small = new Map([
+    ['つ','っ'],['や','ゃ'],['ゆ','ゅ'],['よ','ょ'],
+  ]);
+  const inv = (m) => { const r = new Map(); m.forEach((v,k) => r.set(v,k)); return r; };
+  const voicedToBase = inv(dakuten);
+  const semiToBase = inv(handakuten);
+  const smallToBig = inv(small);
+
+  const state = { idx:0, typed:'', pos:0, start:null, end:null, timerId:null, locked:false };
+
+  const $ = (s) => document.querySelector(s);
+  const wordEl = $('#word');
+  const readingEl = $('#reading');
+  const typedEl = $('#typed');
+  const feedbackEl = $('#feedback');
+  const frogSayEl = $('#frogSay');
+  const timeEl = $('#time');
+  const qNowEl = $('#qNow');
+  const kbdEl = $('#kbd');
+  const sideEl = $('#side');
+  const overlay = $('#overlay');
+  const wheel = $('#wheel');
+  const optEls = {
+    up: wheel.querySelector('.opt.up'),
+    right: wheel.querySelector('.opt.right'),
+    down: wheel.querySelector('.opt.down'),
+    left: wheel.querySelector('.opt.left'),
+    center: wheel.querySelector('.opt.center'),
+  };
+
+  const results = $('#results');
+  const rTimeBig = $('#rTimeBig');
+  const frogResultMsg = $('#frogResultMsg');
+  const frogFace = $('#frogFace');
+  const frogResult = $('#frogResult');
+
+  function setFeedback(text, kind=''){
+    feedbackEl.textContent = text;
+    feedbackEl.classList.remove('good','bad');
+    if(kind) feedbackEl.classList.add(kind);
+  }
+  function frogSay(text, sub=''){
+    frogSayEl.innerHTML = `${text}<small>${sub}</small>`;
+  }
+
+  function startTimerIfNeeded(){
+    if(state.start !== null) return;
+    state.start = performance.now();
+    state.timerId = setInterval(() => {
+      const t = (performance.now() - state.start)/1000;
+      timeEl.textContent = t.toFixed(1);
+    }, 50);
+  }
+  function stopTimer(){
+    if(state.timerId) clearInterval(state.timerId);
+    state.timerId = null;
+    state.end = performance.now();
+    const t = (state.end - state.start)/1000;
+    timeEl.textContent = t.toFixed(1);
+    return t;
+  }
+
+  function expected(){ return problems[state.idx].reading; }
+  function recomputePos(){
+    const exp = [...expected()];
+    const got = [...state.typed];
+    let i=0; while(i < exp.length && i < got.length && exp[i] === got[i]) i++; state.pos = i;
+  }
+
+  function renderProblem(){
+    const p = problems[state.idx];
+    qNowEl.textContent = String(state.idx + 1);
+    wordEl.innerHTML = p.display;
+
+    recomputePos();
+    readingEl.innerHTML = '';
+    [...p.reading].forEach((ch,i) => {
+      const s = document.createElement('span');
+      s.className = 'char' + (i < state.pos ? ' done' : (i === state.pos ? ' next' : ''));
+      s.textContent = ch;
+      readingEl.appendChild(s);
+    });
+
+    typedEl.textContent = state.typed || '（ここに入力されます）';
+  }
+
+  function updateProgressUI(){
+    recomputePos();
+    const chars = readingEl.querySelectorAll('.char');
+    chars.forEach((el,i) => {
+      el.classList.toggle('done', i < state.pos);
+      el.classList.toggle('next', i === state.pos);
+    });
+    typedEl.textContent = state.typed || '（ここに入力されます）';
+    if(state.typed === expected()) correctWord();
+  }
+
+  function hasMismatch(){
+    return state.typed.length > 0 && state.pos < [...state.typed].length;
+  }
+
+  function toggleLastChar(){
+    if(state.locked) return;
+    if(state.typed.length === 0){
+      setFeedback('先に1文字 入力しよう', '');
+      frogSay('🐸 まずは 1文字 入れてみよう！', 'そのあとで ゛゜っゃゅょ で へんこうできるよ');
+      return;
+    }
+    startTimerIfNeeded();
+
+    const arr = [...state.typed];
+    const last = arr[arr.length - 1];
+
+    let base = last;
+    if(smallToBig.has(last)) base = smallToBig.get(last);
+    else if(semiToBase.has(last)) base = semiToBase.get(last);
+    else if(voicedToBase.has(last)) base = voicedToBase.get(last);
+
+    const voiced = dakuten.get(base) || null;
+    const semi = handakuten.get(base) || null;
+    const sm = small.get(base) || null;
+
+    const cycle = [base];
+    if(voiced) cycle.push(voiced);
+    if(semi) cycle.push(semi);
+    if(sm) cycle.push(sm);
+
+    if(cycle.length === 1){
+      setFeedback('この文字は かわらないよ', '');
+      frogSay('🐸 その文字は へんこうできないよ', 'ほかの文字で ためしてみてね');
+      return;
+    }
+
+    const idx = cycle.indexOf(last);
+    const next = cycle[(idx >= 0 ? idx + 1 : 1) % cycle.length];
+    arr[arr.length - 1] = next;
+    state.typed = arr.join('');
+
+    updateProgressUI();
+    setFeedback('へんこう！', 'good');
+    frogSay('🐸 いいね！ へんこう できた！', '');
+  }
+
+  function backspace(){
+    if(state.locked) return;
+    if(state.typed.length === 0) return;
+    startTimerIfNeeded();
+    const arr = [...state.typed];
+    arr.pop();
+    state.typed = arr.join('');
+    updateProgressUI();
+    setFeedback('1文字もどった', '');
+  }
+
+  function clearAll(){
+    if(state.locked) return;
+    state.typed = '';
+    updateProgressUI();
+    setFeedback('クリア！', '');
+  }
+
+  function handleChar(ch){
+    if(state.locked) return;
+    if(ch === 'TOGGLE'){ toggleLastChar(); return; }
+    if(ch === 'BACK'){ backspace(); return; }
+
+    if(hasMismatch()){
+      setFeedback('まちがいを なおそう（戻る/゛゜っゃゅょ）', 'bad');
+      frogSay('🐸 だいじょうぶ！', '「戻る」か「゛゜っゃゅょ」で なおせるよ');
+      return;
+    }
+
+    startTimerIfNeeded();
+    state.typed += ch;
+    updateProgressUI();
+
+    if(hasMismatch()){
+      setFeedback('いまは ちがうよ（直してOK）', 'bad');
+      frogSay('🐸 そのままでも OK！', '「゛゜っゃゅょ」で へんこう してみてね');
+    } else {
+      setFeedback('いいよ！', 'good');
+    }
+  }
+
+  function correctWord(){
+    state.locked = true;
+    const p = problems[state.idx];
+    setFeedback(p.comment, 'good');
+    frogSay('🐸 やったー！ せいかい！', 'つぎも いこう！');
+
+    setTimeout(() => {
+      state.idx += 1;
+      if(state.idx >= problems.length){
+        finish();
+        return;
+      }
+      state.typed = '';
+      state.locked = false;
+      renderProblem();
+      setFeedback('つぎ！', '');
+    }, 650);
+  }
+
+  function setResultFrogByTime(timeSec){
+    let face='🐸', title='', sub='';
+    let bg='rgba(34,197,94,.08)';
+    let border='rgba(34,197,94,.18)';
+
+    if(timeSec <= 12){
+      face='🐸🚀'; title='はやすぎる！ ロケット級！'; sub='きみは フリックマスター！';
+      bg='rgba(6,182,212,.12)'; border='rgba(6,182,212,.26)';
+    } else if(timeSec <= 16){
+      face='🐸✨'; title='さいこう！ とっても はやい！'; sub='そのちょうし！';
+      bg='rgba(34,197,94,.12)'; border='rgba(34,197,94,.28)';
+    } else if(timeSec <= 20){
+      face='🐸👍'; title='すごい！ いいタイム！'; sub='つぎは もっと はやく！';
+      bg='rgba(6,182,212,.10)'; border='rgba(6,182,212,.22)';
+    } else if(timeSec <= 26){
+      face='🐸😊'; title='いいね！ ちゃんと できた！'; sub='ゆっくりでも OK。だんだん はやくなるよ';
+      bg='rgba(250,204,21,.10)'; border='rgba(250,204,21,.22)';
+    } else {
+      face='🐸🌱'; title='おつかれさま！ ここから のびる！'; sub='1文字ずつ ていねいに。つぎは もっと かんたん！';
+      bg='rgba(34,197,94,.08)'; border='rgba(34,197,94,.18)';
+    }
+
+    frogFace.textContent = face;
+    frogResultMsg.innerHTML = `${face} ${title}<small>${sub}</small>`;
+    frogResult.style.background = bg;
+    frogResult.style.borderColor = border;
+  }
+
+  function finish(){
+    const t = stopTimer();
+    rTimeBig.textContent = t.toFixed(1);
+    setResultFrogByTime(t);
+    results.style.display = 'flex';
+    frogSay('🐸 ぜんぶ できた！', 'けっか を みてみよう');
+  }
+
+  function resetAll(){
+    results.style.display = 'none';
+    if(state.timerId) clearInterval(state.timerId);
+    state.idx = 0;
+    state.typed = '';
+    state.pos = 0;
+    state.start = null;
+    state.end = null;
+    state.locked = false;
+    timeEl.textContent = '0.0';
+    frogSay('🐸 いっしょに がんばろう！', 'キーを おして フリックしてね');
+    renderProblem();
+    setFeedback('スタート！', '');
+  }
+
+  // フリックUI
+  let activeKey = null;
+  let startX = 0, startY = 0;
+  let currentDir = 'center';
+  const TH = 18;
+
+  function setOverlayContent(key){
+    const m = key.map;
+    const show = (dir, ch) => {
+      const el = optEls[dir];
+      let t = ch;
+      if(ch === 'TOGGLE') t = '゛゜/小';
+      el.textContent = t || ' ';
+      el.style.opacity = ch ? '1' : '0.25';
+    };
+    show('center', m.center);
+    show('up', m.up);
+    show('right', m.right);
+    show('down', m.down);
+    show('left', m.left);
+    selectDir('center');
+  }
+  function selectDir(dir){
+    currentDir = dir;
+    Object.entries(optEls).forEach(([k,el]) => el.classList.toggle('sel', k === dir));
+  }
+  function calcDir(dx, dy){
+    const adx = Math.abs(dx), ady = Math.abs(dy);
+    if(adx < TH && ady < TH) return 'center';
+    if(adx > ady) return dx > 0 ? 'right' : 'left';
+    return dy > 0 ? 'down' : 'up';
+  }
+  function openOverlay(key, x, y){
+    activeKey = key;
+    startX = x; startY = y;
+    setOverlayContent(key);
+    overlay.style.display = 'flex';
+    overlay.setAttribute('aria-hidden','false');
+  }
+  function closeOverlay(commit=true){
+    if(!activeKey){
+      overlay.style.display = 'none';
+      overlay.setAttribute('aria-hidden','true');
+      return;
+    }
+    const key = activeKey;
+    const out = key.map[currentDir] || key.map.center;
+
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden','true');
+    activeKey = null;
+
+    if(commit && out !== undefined && out !== ''){
+      handleChar(out);
+    }
+  }
+  function onPointerDown(e, key){
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    openOverlay(key, e.clientX, e.clientY);
+    e.target.setPointerCapture?.(e.pointerId);
+  }
+  function onPointerMove(e){
+    if(!activeKey) return;
+    e.preventDefault();
+    const dir = calcDir(e.clientX - startX, e.clientY - startY);
+    selectDir(dir);
+  }
+  function onPointerUp(e){
+    if(!activeKey) return;
+    e.preventDefault();
+    closeOverlay(true);
+  }
+  function onPointerCancel(e){
+    if(!activeKey) return;
+    e.preventDefault();
+    closeOverlay(false);
+  }
+
+  function renderKeyboard(){
+    kbdEl.innerHTML = '';
+    keys.forEach((key) => {
+      const b = document.createElement('div');
+      b.className = 'key' + (key.type === 'special' ? ' special' : (key.type === 'symbol' ? ' symbol' : ''));
+      b.textContent = key.label;
+
+      const hint = document.createElement('small');
+      if(key.label === 'あ') hint.textContent = 'あ/い/う/え/お';
+      else if(key.label === 'か') hint.textContent = 'か/き/く/け/こ';
+      else if(key.label === 'さ') hint.textContent = 'さ/し/す/せ/そ';
+      else if(key.label === 'た') hint.textContent = 'た/ち/つ/て/と';
+      else if(key.label === 'な') hint.textContent = 'な/に/ぬ/ね/の';
+      else if(key.label === 'は') hint.textContent = 'は/ひ/ふ/へ/ほ';
+      else if(key.label === 'ま') hint.textContent = 'ま/み/む/め/も';
+      else if(key.label === 'や') hint.textContent = 'や/ゆ/よ';
+      else if(key.label === 'ら') hint.textContent = 'ら/り/る/れ/ろ';
+      else if(key.label === 'わ') hint.textContent = 'わ/を/ん/ー';
+      else if(key.label === '゛゜っゃゅょ') hint.textContent = '直前を変更';
+      else if(key.label === '記号') hint.textContent = '、。？！';
+      if(hint.textContent) b.appendChild(hint);
+
+      b.addEventListener('pointerdown', (e) => onPointerDown(e, key));
+      kbdEl.appendChild(b);
+    });
+
+    sideEl.innerHTML = '';
+    sideButtons.forEach((btn) => {
+      const b = document.createElement('div');
+      b.className = 'key ' + btn.cls + (btn.enabled ? '' : ' disabled');
+      b.textContent = btn.label;
+      if(btn.hint){
+        const s = document.createElement('small');
+        s.textContent = btn.hint;
+        b.appendChild(s);
+      }
+      if(btn.enabled){
+        b.addEventListener('pointerdown', (e) => { e.preventDefault(); handleChar(btn.value); });
+      }
+      sideEl.appendChild(b);
+    });
+
+    window.addEventListener('pointermove', onPointerMove, {passive:false});
+    window.addEventListener('pointerup', onPointerUp, {passive:false});
+    window.addEventListener('pointercancel', onPointerCancel, {passive:false});
+  }
+
+  $('#clear').addEventListener('click', clearAll);
+  $('#retry').addEventListener('click', resetAll);
+  $('#close').addEventListener('click', () => results.style.display = 'none');
+
+  window.addEventListener('keydown', (e) => {
+    if(results.style.display === 'flex'){
+      if(e.key === 'Enter' || e.key === 'Escape') results.style.display = 'none';
+      return;
+    }
+    if(e.key === 'Backspace'){
+      e.preventDefault();
+      backspace();
+    }
+    if(e.key === 'Escape'){
+      e.preventDefault();
+      clearAll();
+    }
+  });
+
+  renderKeyboard();
+  renderProblem();
+})();
+</script>
+</body>
+</html>
