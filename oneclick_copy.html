@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ワンクリックでコピー</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+    }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      margin: 0;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      background: #f6f7fb;
+    }
+    .card {
+      background: white;
+      padding: 2rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.08);
+      text-align: center;
+      max-width: 540px;
+      width: min(92vw, 540px);
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 1rem; }
+    .value {
+      font: 600 1.15rem/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      letter-spacing: .3px;
+      background: #f0f3fa;
+      border: 1px solid #e1e6f0;
+      padding: .75rem 1rem;
+      border-radius: 10px;
+      user-select: all;
+      overflow-wrap: anywhere;
+    }
+    button {
+      margin-top: 1rem;
+      font-size: 1rem;
+      padding: .8rem 1.2rem;
+      border-radius: 10px;
+      border: 0;
+      color: white;
+      background: #2563eb;
+      cursor: pointer;
+    }
+    button:active { transform: translateY(1px); }
+    #status { margin-top: .75rem; min-height: 1.25rem; color: #2563eb; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0b1220; }
+      .card { background: #0f172a; color: #e5e7eb; box-shadow: 0 6px 24px rgba(0,0,0,.4); }
+      .value { background: #0b1220; border-color: #1f2942; }
+      #status { color: #93c5fd; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>ワンクリックでクリップボードにコピー</h1>
+    <p class="value" id="text-to-copy" aria-label="コピー対象の文字列">0meDeT0uS26</p>
+    <button id="copy-btn" type="button" aria-describedby="status">コピーする</button>
+    <p id="status" role="status" aria-live="polite"></p>
+  </main>
+
+  <script>
+    (function(){
+      const VALUE = '0meDeT0uS26';
+      const btn = document.getElementById('copy-btn');
+      const statusEl = document.getElementById('status');
+
+      async function copyText(text){
+        // 1) 可能なら安全な Clipboard API を使用
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+        // 2) フォールバック：一時的な textarea + execCommand('copy')
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          return ok;
+        } catch (err) {
+          document.body.removeChild(ta);
+          throw err;
+        }
+      }
+
+      btn.addEventListener('click', async () => {
+        try {
+          const ok = await copyText(VALUE);
+          statusEl.textContent = ok ? 'コピーしました！' : 'コピーに失敗しました。';
+        } catch (e) {
+          statusEl.textContent = 'コピーに失敗しました。手動で選択してコピーしてください。';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
