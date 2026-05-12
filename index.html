@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>学習アプリ メニュー</title>
+<meta name="description" content="授業で使う学習用アプリへの入口ページ（オフライン利用可）" />
+<style>
+:root{--bg:#0b1020;--card:#111a33;--card2:#0f1730;--text:#e8ecff;--muted:#b9c2ff;--accent:#7aa2ff;--accent2:#63e6be;--border:rgba(255,255,255,.12);--shadow:0 10px 25px rgba(0,0,0,.35);--radius:16px;--max:980px}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;color:var(--text);background:radial-gradient(1200px 600px at 15% 10%, rgba(122,162,255,.25), transparent 60%),radial-gradient(900px 520px at 90% 20%, rgba(99,230,190,.18), transparent 60%),linear-gradient(180deg,#0b1020 0%,#070a14 100%)}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--max);margin:0 auto;padding:28px 18px 36px}
+header{padding:14px 0 18px}
+.title{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);background:rgba(255,255,255,.06);border-radius:999px;font-size:12px;color:var(--muted);backdrop-filter:blur(6px)}
+h1{margin:8px 0 6px;font-size:clamp(22px,3.2vw,34px);letter-spacing:.02em}
+.lead{margin:0;color:var(--muted);line-height:1.65;font-size:14.5px}
+.grid{margin-top:18px;display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.card{grid-column:span 12;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative}
+.card::before{content:"";position:absolute;inset:-2px;background:radial-gradient(520px 200px at 20% 0%, rgba(122,162,255,.26), transparent 55%),radial-gradient(520px 200px at 80% 0%, rgba(99,230,190,.18), transparent 55%);pointer-events:none;opacity:.9}
+.card>div{position:relative;padding:18px 16px 16px}
+.card h2{margin:0 0 6px;font-size:18px}
+.desc{margin:0 0 12px;color:var(--muted);line-height:1.6;font-size:14px}
+.btnrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(17,26,51,.55);transition:transform .08s ease,background .2s ease,border-color .2s ease;font-weight:600;font-size:14px}
+.btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.22);background:rgba(17,26,51,.75)}
+.btn:active{transform:translateY(0)}
+.pill{font-size:12px;color:var(--muted);padding:6px 10px;border:1px dashed rgba(255,255,255,.18);border-radius:999px;background:rgba(15,23,48,.55)}
+footer{margin-top:20px;padding:14px 4px 0;color:var(--muted);font-size:12.5px;line-height:1.75;border-top:1px solid rgba(255,255,255,.10)}
+.copyright{margin-top:6px;color:rgba(232,236,255,.85)}
+@media (min-width:720px){.card{grid-column:span 6}}
+@media (min-width:980px){.card{grid-column:span 4}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="title">
+<span class="badge">📚 教育用（授業・学習支援のための教材）</span>
+<span class="badge">🔌 オフライン利用可（ファイルを開くだけ）</span>
+</div>
+<h1>学習アプリ メニュー</h1>
+<p class="lead">このページは<strong>教育目的</strong>（授業・学習支援）で作成した学習用教材への入口です。<br>下のカードから、使いたいアプリを選んでください。</p>
+</header>
+
+<main class="grid">
+<section class="card"><div><h2>カエルとフリックれんしゅう</h2><p class="desc">かなフリック入力を、タイムだけで楽しく練習します。</p><div class="btnrow"><a class="btn" href="frogflick.html">▶ 開く</a><span class="pill">frogflick.html</span></div></div></section>
+<section class="card"><div><h2>五十音タッチ</h2><p class="desc">「あ→ん」の順にタッチして、スピードに挑戦します。</p><div class="btnrow"><a class="btn" href="hiraganatouch.html">▶ 開く</a><span class="pill">hiraganatouch.html</span></div></div></section>
+<section class="card"><div><h2>ローマ字→かなクイズ</h2><p class="desc">ローマ字を見て、かなを選ぶクイズ（選択式）です。</p><div class="btnrow"><a class="btn" href="romaji1.html">▶ 開く</a><span class="pill">romaji1.html</span></div></div></section>
+<section class="card"><div><h2>How is the weather?</h2><p class="desc">クリックするとランダムでさまざまな天気の写真が表示されます。</p><div class="btnrow"><a class="btn" href="weatherspicture.html">▶ 開く</a><span class="pill">weatherspicture.html</span></div></div></section>
+</main>
+
+<footer>
+<div><strong>ご利用について</strong><br>本教材は教育用です。授業・学習支援の範囲でご利用ください。</div>
+<div class="copyright">© 2025 <a href="mailto:yos-kaiharaxa@kobe-c.ed.jp">yos-kaiharaxa@kobe-c.ed.jp</a></div>
+</footer>
+</div>
+</body>
+</html>
